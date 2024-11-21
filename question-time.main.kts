@@ -226,4 +226,10 @@ fun testAll() {//tests all the functions to make sure everything is running as i
 play()
 runEnabledTests(this)
 
-// Hello its Henry
+// Pt2 of Question Time
+// Step 1
+data class TaggedQuestions(
+    val text: String,
+    val answer: String,
+    val tag: List<String>
+) 
