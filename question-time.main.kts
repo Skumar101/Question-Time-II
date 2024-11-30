@@ -228,8 +228,39 @@ runEnabledTests(this)
 
 // Pt2 of Question Time
 // Step 1
-data class TaggedQuestions(
-    val text: String,
+data class TaggedQuestion(
+    val question: String,
     val answer: String,
-    val tag: List<String>
-) 
+    val tags: List<String>
+) {
+    fun taggedAs(tag: String): Boolean {
+        return tags.contains(tag)
+    }
+    
+    fun format(): String {
+        return "$question|$answer|${tags.joinToString(",")}"
+    }
+}
+
+val q1 = TaggedQuestion("What is the capital of Massachusetts?", "Boston", listOf("easy", "Geography"))
+
+val q2 = TaggedQuestion("What is the square root of 16?", "4", listOf("easy", "Math"))
+
+val q3 = TaggedQuestion("What year was the Declaration of Independence signed?", "1776", listOf("medium", "History"))
+
+// Step 2
+fun stringToTaggedQuestion(str: String): TaggedQuestion {
+    val parts = str.split("|")
+    val question = parts[0]
+    val answer = parts[1]
+    val tags = parts[2].split(",").map { it.trim() }
+    return TaggedQuestion(question, answer, tags)
+}
+
+fun readTaggedQuestionBank(path: String): List<TaggedQuestion> {
+    return if (fileExists(path)) {
+        fileReadAsList(path).map { stringToTaggedQuestion(it) }
+    } else {
+        emptyList()
+    }
+}
