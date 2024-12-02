@@ -264,3 +264,50 @@ fun readTaggedQuestionBank(path: String): List<TaggedQuestion> {
         emptyList()
     }
 }
+
+// Step 3
+
+/**
+* The bank is either completed,
+* showing a question or showing
+* an answer
+*/
+
+enum class QuestionBankState { COMPLETED, QUESTIONING, ANSWERING }
+/**
+* Basic functionality of any question bank
+*/
+
+interface IQuestionBank {
+/**
+* Returns the state of a question bank.
+*/
+
+fun getState(): QuestionBankState
+/**
+* Returns the currently visible text (or null if completed).
+*/
+
+fun getText(): String?
+/**
+* Returns the number of question-answer pairs.
+* (Size does not change when a question is put
+* to the end of the question bank.)
+*/
+
+fun getSize(): Int
+/**
+* Shifts from question to answer. If not QUESTIONING,
+* returns the same IQuestionBank.
+*/
+fun show(): IQuestionBank
+/**
+* Shifts from an answer to the next question (or completion).
+* If the current question was answered correctly, it discards
+* it. Otherwise it cycles the question to the end.
+*
+* If not ANSWERING, returns the same IQuestionBank.
+*/
+fun next(correct: Boolean): IQuestionBank
+
+data class ListBasedQuestionBank()
