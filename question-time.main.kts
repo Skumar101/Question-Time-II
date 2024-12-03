@@ -333,7 +333,7 @@ class ListBasedQuestionBank(private val questions: List<TaggedQuestion>, private
   } 
 
 
-  override fun next(correct: Boolean): IQuestionBank{//NEEDS TO BE CHANGED
+  override fun next(correct: Boolean): IQuestionBank{
     return if(currentState == QuestionBankState.ANSWERING){
       if(correct){/// got it correct
         if(index +1>=questions.size){
