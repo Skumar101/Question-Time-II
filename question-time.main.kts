@@ -1,4 +1,5 @@
 import khoury.*
+import kotlin.math.*
 
 data class Question(val q: String, val a: String)
 
@@ -466,3 +467,97 @@ fun demonstrateChooseMenu() {
 }
 
 // Step 5
+
+val dataset: List<LabeledExample<String, Boolean>> =
+listOf(
+/* Some positive examples */
+LabeledExample("yes", true),
+LabeledExample("y", true),
+LabeledExample("indeed", true),
+LabeledExample("aye", true),
+LabeledExample("oh yes", true),
+LabeledExample("affirmative", true),
+LabeledExample("roger", true),
+LabeledExample("uh huh", true),
+LabeledExample("true", true),
+/* Some negative examples */
+LabeledExample("no", false),
+LabeledExample("n", false),
+LabeledExample("nope", false),
+LabeledExample("negative", false),
+LabeledExample("nay", false),
+LabeledExample("negatory", false),
+LabeledExample("uh uh", false),
+LabeledExample("absolutely not", false),
+LabeledExample("false", false),
+)
+
+//5.1 - Find Closest
+
+data class LabeledExample<E, L>(val example: E, val label: L)
+
+fun <T> topK(itemList: List<T>, metrFun: (T, T)-> Int, k: Int): List<T>
+{
+    return itemList.sortedByAscending{metrFun(it.first.example, it.second)}.drop(itemList.size-k)
+    return itemList.map{it -> (it.first, metrFun(it.first.example, it.second))}.drop(itemList.size-1)
+}
+
+
+//5.2 - Levenshtein Distance
+
+fun levenshteinDistance(word1: String, word2: String): Int{
+    var count = 0
+    val diff = abs(word2.length - word1.length)
+    count += diff
+
+    val little
+
+    if(word1.length>word2.length)
+        little = word2
+    else
+        little = word1
+    
+    for(i in 0..little.length-1)
+    {
+        if(word2[i]!=word1[i])
+            count++
+    }
+    return count
+}
+
+//5.3 - k Nearest Neighbor
+
+typealias DistanceFunction<T> = (T, T) -> Int
+data class ResultWithVotes<L>(val label: L, val votes: Int)
+/**
+* Uses k-NN to predict the label for a supplied query
+* given a labelled data set and a distance function.
+*/
+fun <E, L> nnLabel(query: E, dataset: List<LabeledExample<E, L>>, distFn: DistanceFunction<E>, k: Int): ResultWithVotes<L> 
+{
+    val modData = dataset.map{i -> pair(i, query)}
+    val topK = topK(modData, ::levenshteinDistance, 3)
+    val countList = topK.groupingBy{it.first.label}.eachCount()
+
+    var max = 0
+    for(i in countList)
+    {
+        if(i.value>max)
+            max = i.value
+    }
+    val finalLabel = countList.entries.find{it.value==maxVotes}
+    return ResultWithVotes(finalLabel.key, max)
+
+
+}
+
+fun classifier(query: String, dataset: List<LabeledExample<String,Boolean>>):ResultWithVotes<Boolean?>{
+  for(i in dataset){
+    if(query == i.example){
+      return ResultWithVotes(i.label, 1)
+    }
+  }
+
+
+  return nnLabel(query, dataset, ::levenshteinDistance, 3)
+
